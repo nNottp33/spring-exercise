@@ -2,11 +2,31 @@ services:
   app:
     build: .
     ports:
-      - "4033:4033"
+      - "4033:4033" # Spring Boot application port
+      - "35729:35729" # LiveReload port
     volumes:
+      # Mount source code for live reload (read-write for proper detection)
       - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+      # Mount target directory to share compiled classes
       - ./target:/app/target
-      - ~/.m2:/root/.m2
+      # Use named volume for Maven cache instead of host mount
+      - maven-cache:/root/.m2
     environment:
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+      - SPRING_PROFILES_ACTIVE=dev
+    # Override default command to enable continuous compilation and DevTools
+    command:
+      [
+        "./mvnw",
+        "spring-boot:run",
+        "-Dspring-boot.run.fork=false",
+        "-Dspring.devtools.restart.enabled=true",
+        "-Dspring.devtools.livereload.enabled=true",
+        "-Dspring-boot.run.addResources=true",
+      ]
+    restart: unless-stopped
+
+volumes:
+  maven-cache:

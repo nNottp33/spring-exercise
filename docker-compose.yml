@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4033:4033"  # Spring Boot application port
+      - "35729:35729"  # LiveReload port
+    volumes:
+      # Mount source code for live reload
+      - ./src:/app/src:ro
+      - ./pom.xml:/app/pom.xml:ro
+      # Mount Maven cache to avoid re-downloading dependencies
+      - maven-cache:/root/.m2
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+    # Keep container running and restart on failure
+    restart: unless-stopped
+    # Use development optimized JVM settings
+    command: ["./mvnw", "spring-boot:run", "-Dspring-boot.run.fork=false", "-Dspring.devtools.restart.enabled=true", "-Dspring.devtools.livereload.enabled=true"]
+
+volumes:
+  maven-cache:

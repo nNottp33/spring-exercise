@@ -1,0 +1,54 @@
+# Multi-stage build for production
+# Stage 1: Build stage
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /app
+
+# Copy Maven wrapper and pom.xml first for better layer caching
+COPY mvnw ./
+COPY .mvn .mvn/
+COPY pom.xml ./
+
+# Make Maven wrapper executable and download dependencies
+RUN chmod +x mvnw && \
+    ./mvnw dependency:go-offline -B
+
+# Copy source code and build the application
+COPY src ./src/
+
+# Build the application (skip tests for faster builds)
+RUN ./mvnw clean package -DskipTests -B && \
+    # Extract the JAR layers for better Docker layer caching
+    java -Djarmode=layertools -jar target/*.jar extract
+
+# Stage 2: Runtime stage
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S spring && \
+    adduser -u 1001 -S spring -G spring
+
+WORKDIR /app
+
+# Copy extracted layers from builder stage
+COPY --from=builder --chown=spring:spring /app/dependencies/ ./
+COPY --from=builder --chown=spring:spring /app/spring-boot-loader/ ./
+COPY --from=builder --chown=spring:spring /app/snapshot-dependencies/ ./
+COPY --from=builder --chown=spring:spring /app/application/ ./
+
+# Switch to non-root user
+USER spring
+
+# Expose port
+EXPOSE 4033
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:4033/actuator/health || exit 1
+
+# Use dumb-init for proper signal handling and start the application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-Djava.security.egd=file:/dev/./urandom", "org.springframework.boot.loader.launch.JarLauncher"]

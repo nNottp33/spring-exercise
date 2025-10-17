@@ -1,11 +1,49 @@
+# Build artifacts
 target/
+*.jar
+*.war
+
+# Version control
 .git/
 .gitignore
+
+# Docker files
 .dockerignore
-Dockerfile
-compose.yaml
+Dockerfile*
+compose*.yaml
+compose*.yml
+docker-compose*.yml
+
+# Documentation
 README.md
+*.md
+
+# IDE files
 .idea/
 .vscode/
+.eclipse/
 *.iml
+*.iws
+*.ipr
+
+# Logs
 *.log
+logs/
+
+# Test files
+src/test/
+
+# Development files
+.env*
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules (if any)
+node_modules/
