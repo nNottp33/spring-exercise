@@ -1,10 +1,25 @@
 package com.maxbit.code_exercise.features.book.models;
 
-import com.maxbit.code_exercise.features.author.models.Authors;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.maxbit.code_exercise.features.author.models.Authors;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -28,13 +43,11 @@ public class Books {
     private Double price;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_book_author")
-    )
+    @JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "fk_book_author"))
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "books" })
     private Authors author;
 
-    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
     @PrePersist

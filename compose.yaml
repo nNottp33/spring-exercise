@@ -8,6 +8,8 @@ services:
       # Mount source code for live reload (read-write for proper detection)
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
+      # Mount .env file
+      - ./.env:/app/.env:ro
       # Mount target directory to share compiled classes
       - ./target:/app/target
       # Use named volume for Maven cache instead of host mount
@@ -16,6 +18,11 @@ services:
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
       - SPRING_PROFILES_ACTIVE=dev
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-ohara}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+    networks:
+      - ohara
     # Override default command to enable continuous compilation and DevTools
     command:
       [
@@ -30,3 +37,7 @@ services:
 
 volumes:
   maven-cache:
+
+networks:
+  ohara:
+    external: true

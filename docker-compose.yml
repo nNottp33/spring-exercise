@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -6,22 +6,33 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "4033:4033"  # Spring Boot application port
-      - "35729:35729"  # LiveReload port
+      - "4033:4033"
+      - "35729:35729"
     volumes:
-      # Mount source code for live reload
       - ./src:/app/src:ro
       - ./pom.xml:/app/pom.xml:ro
-      # Mount Maven cache to avoid re-downloading dependencies
+      - ./.env:/app/.env:ro
       - maven-cache:/root/.m2
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
-    # Keep container running and restart on failure
-    restart: unless-stopped
-    # Use development optimized JVM settings
-    command: ["./mvnw", "spring-boot:run", "-Dspring-boot.run.fork=false", "-Dspring.devtools.restart.enabled=true", "-Dspring.devtools.livereload.enabled=true"]
+    restart: always
+    command:
+      [
+        "./mvnw",
+        "spring-boot:run",
+        "-Dspring-boot.run.fork=false",
+        "-Dspring.devtools.restart.enabled=true",
+        "-Dspring.devtools.livereload.enabled=true",
+      ]
+    networks:
+      - ohara
 
 volumes:
   maven-cache:
+
+networks:
+  ohara:
+    external: true
+    name: ohara
