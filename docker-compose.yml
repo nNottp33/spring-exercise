@@ -6,8 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "4033:4033"
+      - "${APP_PORT}:${APP_PORT}"
       - "35729:35729"
+    env_file:
+      - .env
     volumes:
       - ./src:/app/src:ro
       - ./pom.xml:/app/pom.xml:ro

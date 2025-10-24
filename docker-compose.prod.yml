@@ -7,7 +7,9 @@ services:
       dockerfile: Dockerfile.prod
       target: runtime
     ports:
-      - "4033:4033"
+      - "${APP_PORT}:${APP_PORT}"
+    env_file:
+      - .env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:h2:mem:proddb

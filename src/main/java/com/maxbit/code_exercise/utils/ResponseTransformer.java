@@ -5,12 +5,12 @@ import org.springframework.http.ResponseEntity;
 
 public class ResponseTransformer {
 
-    public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
-        ApiResponse<T> response = new ApiResponse<>(200, "Success", data);
+    public static <T> ResponseEntity<ApiResponse<T>> success(String message) {
+        ApiResponse<T> response = new ApiResponse<>(200, "Success", null);
         return ResponseEntity.ok(response);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> success(T data, String message) {
+    public static <T> ResponseEntity<ApiResponse<T>> success(String message, T data) {
         ApiResponse<T> response = new ApiResponse<>(200, message, data);
         return ResponseEntity.ok(response);
     }
