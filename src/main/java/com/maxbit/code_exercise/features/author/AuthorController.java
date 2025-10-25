@@ -23,7 +23,7 @@ public class AuthorController {
     @GetMapping()
     public ResponseEntity<ApiResponse<List<Authors>>> getAuthors() {
         List<Authors> authors = authorService.getAuthors();
-        return ResponseTransformer.success(authors, "Fetched author Success");
+        return ResponseTransformer.success("Fetched author Success", authors);
     }
 
 }
